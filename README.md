@@ -1,7 +1,7 @@
 Para executar o código acima, siga os seguintes passos:
 
-1. Abra o seu editor de texto preferido e crie dois novos arquivos.
-2. Copie e cole o código acima no novo arquivo, um para o servidor e outro para o cliente.
+1. Abra o seu editor de texto preferido e crie 3 novos arquivos.
+2. Copie e cole o código acima no novo arquivo, um para o servidor e os outros 2 para o cliente.
 3. Salve o arquivo com um nome de sua escolha e a extensão .py (por exemplo: client.py e server.py).
 4. Na variável 'host' coloque seu ip local de sua máquina na rede. 
 5. Abra no mínimo 3 terminais (um para o servidor e os outros para os clientes).
