@@ -1,69 +1,52 @@
 import socket
 import threading
 
-# Define o endereço IP e a porta de conexão do servidor
-HOST = '192.168.0.106'  # Coloque seu ender
-PORT = 3333         # Porta de conexão
+
+HOST = '192.168.0.106'
+PORT = 5555
 
 
-def enviaMensagem(cliente):
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+client_socket.connect((HOST, PORT))
+
+
+def receive():
     while True:
         try:
-            mensagem = input('')
-            cliente.send(mensagem.encode('utf-8'))
-            
-            if mensagem == 'exit':
-                print('Encerrando conexão...')
-                cliente.close()
+ 
+            message = client_socket.recv(1024).decode()
+
+
+            if message == 'exit':
+                client_socket.close()
                 break
+
+
+            print(message)
         except:
-            pass
-    
-def recebeMensagem(cliente):
-        while True:
-            try:
-                resposta = cliente.recv(1024).decode('utf-8')
-                print('\nServidor: ',resposta)
-            except:
-                break
+         
+            client_socket.close()
+            break
 
 
-# Loop principal do cliente
-def main():
-    # Cria um objeto socket TCP/IP
-    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def send():
+    while True:
 
-    # Conecta o socket ao endereço IP e à porta especificada
-    cliente.connect((HOST, PORT))
+        message = input()
 
-    
-    t1 = threading.Thread(target=recebeMensagem,args=[cliente])
-    t2 = threading.Thread(target=enviaMensagem,args=[cliente])
-    
-    t1.start()
-    t2.start()
 
-    # while True:
-        # Envia uma mensagem ao servidor
-        # mensagem = input('Cliente: ')
-        # cliente.send(mensagem.encode('utf-8'))
+        if message == 'exit':
+            client_socket.send('exit'.encode())
+            client_socket.close()
+            break
 
-        # threading.Thread(target=enviaMensagem(cliente)).start()
 
-        # Verifica se o usuário digitou "exit"
-        # if mensagem == 'exit':
-        #     print('Encerrando conexão...')
-        #     cliente.close()
-        #     break
-        # threading.Thread(target=enviaMensagem).start()
-        # threading.Thread(target=recebeMensagem).start()
+        client_socket.send(message.encode())
 
-        # Recebe a resposta do servidor
-        # resposta = cliente.recv(1024).decode('utf-8')
+receive_thread = threading.Thread(target=receive)
+receive_thread.start()
 
-        # Exibe a resposta recebida
-        # print('Servidor:', resposta)
-
-# Fecha a conexão
-main()
-# cliente.close()
+send_thread = threading.Thread(target=send)
+send_thread.start()

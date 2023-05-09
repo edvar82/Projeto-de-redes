@@ -1,91 +1,57 @@
 import socket
 import threading
-# Define o endereço IP e a porta de conexão do servidor
-HOST = '192.168.0.106'  # Endereço IP do servidor
-PORT = 3333         # Porta de conexão
 
-# Cria um objeto socket TCP/IP
-
-# Espera por uma conexão
-    
-# Loop principal do servidor
+HOST = '192.168.0.106'
+PORT = 5555
 
 
-def main():
-    
-    servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Liga o socket ao endereço IP e à porta especificada
-    servidor.bind((HOST, PORT))
 
-    #Define o número máximo de conexões simultâneas
-    servidor.listen(2)
-    print('Aguardando conexão...')
+server_socket.bind((HOST, PORT))
 
-    conexao, endereco = servidor.accept()
-    
-    
-    print('Conexão estabelecida com:', endereco)
 
-    threading.Thread(target=recebeMensagem, args=[conexao]).start()
-    # t2 = threading.Thread(target=enviaMensagem,args=[conexao])
-    # t2.start()
-        
+server_socket.listen()
 
-    # while True:
-        # Recebe a mensagem do cliente
-        # mensagem = conexao.recv(1024).decode('utf-8')
 
-        # Verifica se a mensagem é vazia
-        # if not mensagem:
-        #     print('Encerrando conexão...')
-        #     conexao.close()
-        #     break
+clients = []
 
-        # break
-        # t1.start()
-        # enviaMensagem(conexao)
 
-        
-        # t2 = threading.Thread(target=enviaMensagem, args=conexao).start()
+def handle_client(client_socket, client_address):
+    # Adiciona o cliente à lista de clientes conectados
+    clients.append(client_socket)
 
-        # t2.start()
+    # Envia uma mensagem de boas-vindas ao cliente
+    client_socket.send('Bem-vindo ao chat!'.encode())
 
-        # # Verifica se o usuário digitou "exit"
-        # if mensagem == 'exit':
-        #     print('Encerrando conexão...')
-        #     conexao.close()
-        #     break
 
-        # # Exibe a mensagem recebida
-        # print('Cliente:', mensagem)
-
-        # Envia uma mensagem de resposta ao cliente
-        # resposta = input('Servidor: ')
-        # conexao.send(resposta.encode('utf-8'))
-        
-    # conexao.close()
-
-def recebeMensagem(conexao):
     while True:
         try:
-            mensagem = conexao.recv(1024).decode('utf-8')
-            if mensagem == 'exit':
-                conexao.close()
-                break
-            else:
-                print('Cliente: ', mensagem)
-                enviaMensagem(conexao)
-        except:
-            pass
+            # Recebe uma mensagem do cliente
+            message = client_socket.recv(1024).decode()
 
-def enviaMensagem(conexao):
-    # while True:
-    #     try:
-        resposta = input('Servidor: ')
-        conexao.send(resposta.encode('utf-8'))
-        # except:
-        #     pass
-        
-# Fecha a conexão
-main()
+
+            if message == 'exit':
+                client_socket.send('exit'.encode())
+                clients.remove(client_socket)
+                client_socket.close()
+                break
+
+
+            for client in clients:
+                client.send(f'{client_address[0]}:{client_address[1]} diz: {message}'.encode())
+
+        except:
+            # Remove o cliente da lista de clientes conectados
+            clients.remove(client_socket)
+            client_socket.close()
+            break
+
+
+while True:
+    # Aceita uma nova conexão do cliente
+    client_socket, client_address = server_socket.accept()
+
+    # Cria uma nova thread para tratar as mensagens do cliente
+    client_thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
+    client_thread.start()
