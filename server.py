@@ -70,8 +70,12 @@ def recebeMensagem(conexao):
     while True:
         try:
             mensagem = conexao.recv(1024).decode('utf-8')
-            print('Cliente: ', mensagem)
-            enviaMensagem(conexao)
+            if mensagem == 'exit':
+                conexao.close()
+                break
+            else:
+                print('Cliente: ', mensagem)
+                enviaMensagem(conexao)
         except:
             pass
 

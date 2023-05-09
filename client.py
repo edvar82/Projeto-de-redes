@@ -9,7 +9,7 @@ PORT = 3333         # Porta de conexão
 def enviaMensagem(cliente):
     while True:
         try:
-            mensagem = input('Cliente: ')
+            mensagem = input('')
             cliente.send(mensagem.encode('utf-8'))
             
             if mensagem == 'exit':
@@ -24,7 +24,6 @@ def recebeMensagem(cliente):
             try:
                 resposta = cliente.recv(1024).decode('utf-8')
                 print('\nServidor: ',resposta)
-                
             except:
                 break
 
